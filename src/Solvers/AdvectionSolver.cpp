@@ -35,9 +35,10 @@ void AdvectionSolver::setBoundaryCondtions(string type) {
     return ;
 }
 
-void AdvectionSolver::setSolver(double _dt, double _no_of_time_steps) {
+void AdvectionSolver::setSolver(double _dt, double _no_of_time_steps, int _record_steps) {
     dt = _dt;
     no_of_time_steps = _no_of_time_steps;
+    record_steps = _record_steps;
     return ;
 }
 
@@ -106,6 +107,11 @@ void AdvectionSolver::solve() {
         
         /// RK3 is done, incrementing the time step. 
         time += dt;        
+
+        //Writing VTK file for time Series
+        if((i%record_steps) == 0){
+            field->writeVTK("output"+to_string(i/10)+".vtk");
+        }
     }
 }
 

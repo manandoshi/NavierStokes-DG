@@ -14,6 +14,7 @@ private:
     double time;
     double dt;
     int no_of_time_steps;
+    int record_steps;
 
 public:
     /* ----------------------------------------------------------------------------*/
@@ -74,9 +75,11 @@ public:
      * @Param _dt The time step for each iteration.
      * @Param _no_of_time_steps The number of time steps that must be used which is also the number of time iterations that must
      * be performed
+     * @Param _record_steps The number of steps per step recorded in output.vtk
+     * be performed
      */
     /* ----------------------------------------------------------------------------*/
-    void setSolver(double _dt, double _no_of_time_steps);
+    void setSolver(double _dt, double _no_of_time_steps, int _record_steps);
     /* ----------------------------------------------------------------------------*/
     /**
      * @Synopsis  This function does all the main functionalitites of the solver. This must be called in order to solve
