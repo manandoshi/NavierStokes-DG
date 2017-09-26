@@ -26,6 +26,11 @@ void ConvectiveSolver::setVelocity(function<double(double, double)>U, function<d
     return ;
 }
 
+void ConvectiveSolver::setDiffusionCoeff(double _nu) {
+    nu = _nu;
+    return ;
+}
+
 void ConvectiveSolver::setInitialConditions(function<double(double, double)> I) {
     field->initializeVariable("q", I);
     return ;

@@ -60,6 +60,14 @@ public:
      */
     /* ----------------------------------------------------------------------------*/
     void setVelocity(function<double(double, double)>U, function<double(double, double)>V);
+    /**
+     * @Synopsis This is the function used to set the diffusion coefficient of the system.
+     *
+     * @Param functionU This is the function used to initialize the `U` velocity as an input.
+     * @Param functionV This is the function used to initialize the `V` velocity as an input.
+     */
+    /* ----------------------------------------------------------------------------*/
+    void setDiffusionCoeff(double _nu);
     /* ----------------------------------------------------------------------------*/
     /**
      * @Synopsis  This is the function used to give the initial input waveform as a function.
