@@ -15,6 +15,8 @@ void ConvectiveSolver::setDomain(double _x1, double _y1, double _x2, double _y2)
     y2 = _y2;
     field = new DG_Field_2d(ne_x, ne_y, N, x1, y1, x2, y2);
     field->addVariable_withBounary("q");
+    field->addVariable_withBounary("theta_x");
+    field->addVariable_withBounary("theta_y");
     return ;
 }
 
@@ -57,6 +59,9 @@ void ConvectiveSolver::solve() {
     field->addVariable_withoutBounary("duqdx");
     field->addVariable_withoutBounary("dvqdy");
 
+    field->addVariable_withoutBounary("dtheta_xdx");
+    field->addVariable_withoutBounary("dtheta_ydy");
+
     field->addVariable_withoutBounary("k1");
     field->addVariable_withoutBounary("k2");
     field->addVariable_withoutBounary("k3");
@@ -66,15 +71,29 @@ void ConvectiveSolver::solve() {
     // This for-loop is used to march progressively in time. 
     for(int i=0; i < no_of_time_steps; i++) {
         /// First step of RK3
+        
+        //Inviscid terms
         field->setFunctionsForVariables("u", "q", product, "uq");
         field->setFunctionsForVariables("v", "q", product, "vq");
         
         field->delByDelX("uq", "duqdx", "rusanov", "u");
         field->delByDelY("vq", "dvqdy", "rusanov", "v");
         
+        //Viscid Terms
+        field->delByDelX("q","theta_x","central","");
+        field->delByDelY("q","theta_y","central","");
+        field->scal(-1*nu, "theta_x");
+        field->scal(-1*nu, "theta_y");
+        
+        field->delByDelX("theta_x", "dtheta_xdx", "central", "");
+        field->delByDelY("theta_y", "dtheta_ydy", "central", "");
+
+        //Adding it up
         field->scal(0.0, "k1");
         field->axpy(-1.0, "duqdx", "k1");
         field->axpy(-1.0, "dvqdy", "k1");
+        field->axpy(-1.0, "dtheta_xdx", "k1");
+        field->axpy(-1.0, "dtheta_ydy", "k1");
         
         field->axpy(0.5*dt, "k1", "q");
         
@@ -84,10 +103,21 @@ void ConvectiveSolver::solve() {
         
         field->delByDelX("uq", "duqdx", "rusanov", "u");
         field->delByDelY("vq", "dvqdy", "rusanov", "v");
+
+        field->delByDelX("q","theta_x","central","");
+        field->delByDelY("q","theta_y","central","");
+        field->scal(-1*nu, "theta_x");
+        field->scal(-1*nu, "theta_y");
+        
+        field->delByDelX("theta_x", "dtheta_xdx", "central", "");
+        field->delByDelY("theta_y", "dtheta_ydy", "central", "");
         
         field->scal(0.0, "k2");
         field->axpy(-1.0, "duqdx", "k2");
         field->axpy(-1.0, "dvqdy", "k2");
+        field->axpy(-1.0, "dtheta_xdx", "k2");
+        field->axpy(-1.0, "dtheta_ydy", "k2");
+        
         
         field->axpy(-1.5*dt, "k1", "q");
         field->axpy( 2.0*dt, "k2", "q");
@@ -99,9 +129,19 @@ void ConvectiveSolver::solve() {
         field->delByDelX("uq", "duqdx", "rusanov", "u");
         field->delByDelY("vq", "dvqdy", "rusanov", "v");
         
+        field->delByDelX("q","theta_x","central","");
+        field->delByDelY("q","theta_y","central","");
+        field->scal(-1*nu, "theta_x");
+        field->scal(-1*nu, "theta_y");
+        
+        field->delByDelX("theta_x", "dtheta_xdx", "central", "");
+        field->delByDelY("theta_y", "dtheta_ydy", "central", "");
+
         field->scal(0.0, "k3");
         field->axpy(-1.0, "duqdx", "k3");
         field->axpy(-1.0, "dvqdy", "k3");
+        field->axpy(-1.0, "dtheta_xdx", "k3");
+        field->axpy(-1.0, "dtheta_ydy", "k3");
         
         field->axpy( (7.0/6.0)*dt, "k1", "q");
         field->axpy(-(4.0/3.0)*dt, "k2", "q");
