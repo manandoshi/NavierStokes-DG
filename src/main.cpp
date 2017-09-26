@@ -5,11 +5,11 @@
 using namespace std;
 
 double U(double x, double y) {
-    return 0.0;
+    return 0.10;
 }
 
 double V(double x, double y) {
-    return 0.0;
+    return 0.10;
 }
 
 double initial(double x, double y) {
@@ -24,7 +24,7 @@ int main() {
     int record_steps = 10;
 
     ConvectiveSolver* a;
-    a = new ConvectiveSolver(20, 20, 2);
+    a = new ConvectiveSolver(10, 10, 2);
     a->setDomain(-1.0, -1.0, 1.0, 1.0);
     a->setVelocity(U, V);
     a->setInitialConditions(initial);
