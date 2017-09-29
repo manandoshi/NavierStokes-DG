@@ -106,6 +106,7 @@ void ConvectiveSolver::solve() {
         field->axpy( 2.0*dt, "k2", "T");
 
         /// Third(&final) step of RK3
+        field->scal(0.0, "k3");
         this->solveAdvDiff("T", nu, "k3");
         
         field->axpy( (7.0/6.0)*dt, "k1", "T");
