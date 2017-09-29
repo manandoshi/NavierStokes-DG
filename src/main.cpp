@@ -24,7 +24,7 @@ int main() {
     int record_steps = 10;
 
     ConvectiveSolver* a;
-    a = new ConvectiveSolver(10, 10, 2);
+    a = new ConvectiveSolver(20, 20, 2);
     a->setDomain(-1.0, -1.0, 1.0, 1.0);
     a->setVelocity(U, V);
     a->setInitialConditions(initial);
