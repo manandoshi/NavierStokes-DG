@@ -89,6 +89,37 @@ public:
      */
     /* ----------------------------------------------------------------------------*/
     void setSolver(double _dt, double _no_of_time_steps, int _record_steps);
+    /**
+     * @brief This function computes the divergence of a (vector) field q times a factor and adds it to outp
+     *
+     * @param qx x component of the field
+     * @param qy y component of the field
+     * @param factor factor to multiply the divergence with before adding to outp
+     * @param outp variable to which the divergence value is added
+     * @param fluxType fluxType to be used when computing the divergence
+     * @param fluxVariable_x If flux is Rusanov, the x velocity associated to the variable whose flux is being computed
+     * @param fluxVariable_y If flux is Rusanov, the y velocity associated to the variable whose flux is being computed
+     */
+    void div(string qx, string qy, 
+            double factor, string outp, 
+            string fluxType, string fluxVariable_x, string fluxVariable_y);
+    /**
+     * @brief This function computes the gradient of a scalar field q
+     *
+     * @param q input field
+     * @param dqdx output field for dq/dx
+     * @param dqdy output field for dq/dy
+     */
+    void grad(string q, string dqdx, string dqdy);
+    /**
+     * @brief This functions solves the adv-diff eqn for a variable q
+     *
+     * @param q
+     * @param diff_coeff
+     * @param dt
+     * @param outp
+     */
+    void solveAdvDiff(string q, double diff_coeff, string outp);
     /* ----------------------------------------------------------------------------*/
     /**
      * @Synopsis  This function does all the main functionalitites of the solver. This must be called in order to solve

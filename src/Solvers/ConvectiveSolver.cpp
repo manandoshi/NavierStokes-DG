@@ -14,9 +14,15 @@ void ConvectiveSolver::setDomain(double _x1, double _y1, double _x2, double _y2)
     x2 = _x2;
     y2 = _y2;
     field = new DG_Field_2d(ne_x, ne_y, N, x1, y1, x2, y2);
-    field->addVariable_withBounary("q");
-    field->addVariable_withBounary("theta_x");
-    field->addVariable_withBounary("theta_y");
+    field->addVariable_withBounary("T");
+    field->addVariable_withBounary("uT");
+    field->addVariable_withBounary("vT");
+    field->addVariable_withBounary("dTdx");
+    field->addVariable_withBounary("dTdy");
+    field->addVariable_withoutBounary("ddTdxdx");
+    field->addVariable_withoutBounary("ddTdydy");
+    field->addVariable_withoutBounary("duTdx");
+    field->addVariable_withoutBounary("dvTdy");
     return ;
 }
 
@@ -34,7 +40,7 @@ void ConvectiveSolver::setDiffusionCoeff(double _nu) {
 }
 
 void ConvectiveSolver::setInitialConditions(function<double(double, double)> I) {
-    field->initializeVariable("q", I);
+    field->initializeVariable("T", I);
     return ;
 }
 
@@ -50,18 +56,34 @@ void ConvectiveSolver::setSolver(double _dt, double _no_of_time_steps, int _reco
     return ;
 }
 
+void ConvectiveSolver::div(string qx, string qy, 
+    double factor, string outp, string fluxType, 
+    string fluxVariable_x="", string fluxVariable_y="") {
+    
+    field->delByDelX(qx, "d"+qx+"dx", fluxType, fluxVariable_x);
+    field->delByDelY(qy, "d"+qy+"dy", fluxType, fluxVariable_y);
+
+    field->axpy(factor, "d"+qx+"dx", outp);
+    field->axpy(factor, "d"+qy+"dy", outp);
+    return ;
+}
+
+void ConvectiveSolver::grad(string q, string dqdx, string dqdy) {
+    field->delByDelX(q,dqdx,"central","");
+    field->delByDelY(q,dqdy,"central","");
+
+}
+void ConvectiveSolver::solveAdvDiff(string q, double diff_coeff, string outp) {
+    field->setFunctionsForVariables("u", q, product, "u"+q);
+    field->setFunctionsForVariables("v", q, product, "v"+q);
+    string dqdx = "d"+q+"dx";
+    string dqdy = "d"+q+"dy";
+    this->div("u"+q, "v"+q,-1.0, outp,"rusanov","u","v");
+    this->grad(q,dqdx,dqdy);
+    this->div(dqdx,dqdy,1.0*diff_coeff,outp,"central","","");
+}
 
 void ConvectiveSolver::solve() {
-    field->addVariable_withoutBounary("dqdt");
-    field->addVariable_withBounary("uq");
-    field->addVariable_withBounary("vq");
-
-    field->addVariable_withoutBounary("duqdx");
-    field->addVariable_withoutBounary("dvqdy");
-
-    field->addVariable_withoutBounary("dtheta_xdx");
-    field->addVariable_withoutBounary("dtheta_ydy");
-
     field->addVariable_withoutBounary("k1");
     field->addVariable_withoutBounary("k2");
     field->addVariable_withoutBounary("k3");
@@ -70,82 +92,26 @@ void ConvectiveSolver::solve() {
     // Till now the variable has been initialized.
     // This for-loop is used to march progressively in time. 
     for(int i=0; i < no_of_time_steps; i++) {
-        /// First step of RK3
-        
-        //Inviscid terms
-        field->setFunctionsForVariables("u", "q", product, "uq");
-        field->setFunctionsForVariables("v", "q", product, "vq");
-        
-        field->delByDelX("uq", "duqdx", "rusanov", "u");
-        field->delByDelY("vq", "dvqdy", "rusanov", "v");
-        
-        //Viscid Terms
-        field->delByDelX("q","theta_x","central","");
-        field->delByDelY("q","theta_y","central","");
-        field->scal(-1*nu, "theta_x");
-        field->scal(-1*nu, "theta_y");
-        
-        field->delByDelX("theta_x", "dtheta_xdx", "central", "");
-        field->delByDelY("theta_y", "dtheta_ydy", "central", "");
-
-        //Adding it up
         field->scal(0.0, "k1");
-        field->axpy(-1.0, "duqdx", "k1");
-        field->axpy(-1.0, "dvqdy", "k1");
-        field->axpy(-1.0, "dtheta_xdx", "k1");
-        field->axpy(-1.0, "dtheta_ydy", "k1");
+        /// First step of RK3
+        this->solveAdvDiff("T", nu, "k1");
         
-        field->axpy(0.5*dt, "k1", "q");
-        
-        ///Second Step of RK3
-        field->setFunctionsForVariables("u", "q", product, "uq");
-        field->setFunctionsForVariables("v", "q", product, "vq");
-        
-        field->delByDelX("uq", "duqdx", "rusanov", "u");
-        field->delByDelY("vq", "dvqdy", "rusanov", "v");
+        field->axpy(0.5*dt, "k1", "T");
 
-        field->delByDelX("q","theta_x","central","");
-        field->delByDelY("q","theta_y","central","");
-        field->scal(-1*nu, "theta_x");
-        field->scal(-1*nu, "theta_y");
-        
-        field->delByDelX("theta_x", "dtheta_xdx", "central", "");
-        field->delByDelY("theta_y", "dtheta_ydy", "central", "");
-        
+        ///Second Step of RK3
         field->scal(0.0, "k2");
-        field->axpy(-1.0, "duqdx", "k2");
-        field->axpy(-1.0, "dvqdy", "k2");
-        field->axpy(-1.0, "dtheta_xdx", "k2");
-        field->axpy(-1.0, "dtheta_ydy", "k2");
+        this->solveAdvDiff("T", nu, "k2");
         
-        
-        field->axpy(-1.5*dt, "k1", "q");
-        field->axpy( 2.0*dt, "k2", "q");
+        field->axpy(-1.5*dt, "k1", "T");
+        field->axpy( 2.0*dt, "k2", "T");
 
         /// Third(&final) step of RK3
-        field->setFunctionsForVariables("u", "q", product, "uq");
-        field->setFunctionsForVariables("v", "q", product, "vq");
-        
-        field->delByDelX("uq", "duqdx", "rusanov", "u");
-        field->delByDelY("vq", "dvqdy", "rusanov", "v");
-        
-        field->delByDelX("q","theta_x","central","");
-        field->delByDelY("q","theta_y","central","");
-        field->scal(-1*nu, "theta_x");
-        field->scal(-1*nu, "theta_y");
-        
-        field->delByDelX("theta_x", "dtheta_xdx", "central", "");
-        field->delByDelY("theta_y", "dtheta_ydy", "central", "");
-
         field->scal(0.0, "k3");
-        field->axpy(-1.0, "duqdx", "k3");
-        field->axpy(-1.0, "dvqdy", "k3");
-        field->axpy(-1.0, "dtheta_xdx", "k3");
-        field->axpy(-1.0, "dtheta_ydy", "k3");
+        this->solveAdvDiff("T", nu, "k3");
         
-        field->axpy( (7.0/6.0)*dt, "k1", "q");
-        field->axpy(-(4.0/3.0)*dt, "k2", "q");
-        field->axpy( (1.0/6.0)*dt, "k3", "q");
+        field->axpy( (7.0/6.0)*dt, "k1", "T");
+        field->axpy(-(4.0/3.0)*dt, "k2", "T");
+        field->axpy( (1.0/6.0)*dt, "k3", "T");
         
         /// RK3 is done, incrementing the time step. 
         time += dt;        

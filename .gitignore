@@ -1,3 +1,7 @@
+.*
+*.avi
+*.ogv
+*.pdf
 *.swp
 build/*
 bin/

@@ -5,11 +5,11 @@
 using namespace std;
 
 double U(double x, double y) {
-    return 0.0;
+    return 0.10;
 }
 
 double V(double x, double y) {
-    return 0.0;
+    return 0.10;
 }
 
 double initial(double x, double y) {
