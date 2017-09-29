@@ -84,16 +84,6 @@ void ConvectiveSolver::solveAdvDiff(string q, double diff_coeff, string outp) {
 }
 
 void ConvectiveSolver::solve() {
-    field->addVariable_withoutBounary("dqdt");
-    field->addVariable_withBounary("uq");
-    field->addVariable_withBounary("vq");
-
-    field->addVariable_withoutBounary("duqdx");
-    field->addVariable_withoutBounary("dvqdy");
-
-    field->addVariable_withoutBounary("dtheta_xdx");
-    field->addVariable_withoutBounary("dtheta_ydy");
-
     field->addVariable_withoutBounary("k1");
     field->addVariable_withoutBounary("k2");
     field->addVariable_withoutBounary("k3");
