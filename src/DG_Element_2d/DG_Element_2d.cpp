@@ -131,6 +131,38 @@ void DG_Element_2d::addVariable_withBoundary(string v) {
     return ;
 }
 
+void DG_Element_2d::setVariableBoundary(string v, char direction, double** val){
+    switch(direction) {
+        case 't' : // `t` or `T` for top 
+        case 'T' :
+            for(int i=0; i<=N;i++){
+                neighboringTop[v][i] = val[i];
+            }
+            break;
+        case 'r' : // `r` or `R` for right
+        case 'R' :
+            for(int i=0; i<=N;i++){
+                neighboringRight[v][i] = val[i];
+            }
+            break;
+        case 'b' : // `b` or `B` for bottom
+        case 'B' :
+            for(int i=0; i<=N;i++){
+                neighboringBottom[v][i] = val[i];
+            }
+            break;
+        case 'l' : // `l` or `L` for left
+        case 'L' :
+            for(int i=0; i<=N;i++){
+                neighboringLeft[v][i] = val[i];
+            }
+            break;
+        default:
+            cout << "WARNING!. No such neighbor type " << direction << endl;
+    }
+    
+    return ;
+}
 /* ----------------------------------------------------------------------------*/
 /**
  * @Synopsis  Function to set the value of a variable with the help of a function.

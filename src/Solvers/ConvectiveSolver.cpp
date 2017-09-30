@@ -50,7 +50,7 @@ void ConvectiveSolver::setInitialConditions(function<double(double, double)> I) 
 }
 
 void ConvectiveSolver::setBoundaryCondtions(string type) {
-    field->setBoundaryConditions(type);
+    field->setBoundaryConditions(type,"T",0.0,0.0,0.0,1.0);
     return ;
 }
 

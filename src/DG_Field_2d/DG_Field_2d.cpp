@@ -123,7 +123,7 @@ DG_Field_2d::DG_Field_2d(int _nex, int _ney, int _N, double _x1, double _y1, dou
     
 }
 
-void DG_Field_2d::setBoundaryConditions(string type) {
+void DG_Field_2d::setBoundaryConditions(string type,string q, double T1, double T2, double T3, double T4) {
     if(type == "periodic") {
         // Setting the boundary for the top elements.
         for(int i = 0; i < ne_x; i++)
@@ -140,6 +140,49 @@ void DG_Field_2d::setBoundaryConditions(string type) {
         // Setting the boundary for the left elements..
         for(int j=0; j < ne_y; j++)
             elements[0][j]->setNeighboringElement('L', elements[ne_x-1][j]);
+    }
+    else if(type == "dirichlet") { 
+        double **top       = new double* [N+1];
+        double **left      = new double* [N+1];
+        double **right     = new double* [N+1];
+        double **bottom    = new double* [N+1];
+
+        double* T_top       = new double;
+        double* T_bottom    = new double;
+        double* T_right     = new double;
+        double* T_left      = new double;
+
+        *T_top      = T1;
+        *T_bottom   = T2;
+        *T_right    = T3;
+        *T_left     = T4;
+
+        for(int i=0; i<=N; i++){
+            bottom[i] = T_bottom;
+            top[i]    = T_top;
+            left[i]   = T_left;
+            right[i]  = T_right;
+        }
+        // Setting the boundary for the top elements.
+        for(int i = 0; i < ne_x; i++)
+            elements[i][ne_y-1]->setVariableBoundary(q, 'T', top);
+        delete [] top;
+
+        // Setting the boundary for the right elements.
+        for(int j=0; j < (ne_y); j++)
+            elements[ne_x-1][j]->setVariableBoundary(q, 'R', right);
+        delete [] right;
+        
+        // Setting the boundary for the bottom elements.
+        for(int i = 0; i < ne_x; i++)
+            elements[i][0]->setVariableBoundary(q, 'B', bottom);
+        delete [] bottom;
+
+        // Setting the boundary for the left elements..
+        for(int j=0; j < ne_y; j++)
+            elements[0][j]->setVariableBoundary(q, 'L', left);
+        delete [] left;
+
     }
     return ;
 }
