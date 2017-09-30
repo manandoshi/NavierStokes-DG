@@ -34,7 +34,7 @@ public:
     void addVariable_withBounary(string v);
     void addVariable_withoutBounary(string v);
     void initializeVariable(string v, function<double(double, double)>);
-    void setBoundaryConditions(string type);
+    void setBoundaryConditions(string type, string q="", double T1=0, double T2=0, double T3=0, double T4=0);
     void writeVTK(string fileName);
     
     // Operators on the field.

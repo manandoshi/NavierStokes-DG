@@ -71,6 +71,7 @@ public:
 
     DG_Element_2d(int _N, double x1, double y1, double x2, double y2);
     void addVariable_withBoundary(string v);
+    void setVariableBoundary(string v, char direction, double** val);
     void addVariable_withoutBoundary(string v);
     void initializeVariable(string v, function<double(double, double)> f);
     void setNeighboringElement(char type, DG_Element_2d* neighbor );
