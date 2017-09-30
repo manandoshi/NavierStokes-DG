@@ -8,21 +8,26 @@ ConvectiveSolver::ConvectiveSolver(int _ne_x, int _ne_y, int _N) {
     time = 0.0;
 }
 
+void ConvectiveSolver::initVar(string q) {
+    field = new DG_Field_2d(ne_x, ne_y, N, x1, y1, x2, y2);
+    field->addVariable_withBounary(q);
+    field->addVariable_withBounary("u"+q);
+    field->addVariable_withBounary("v"+q);
+    field->addVariable_withBounary("d"+q+"dx");
+    field->addVariable_withBounary("d"+q+"dy");
+    field->addVariable_withoutBounary("dd"+q+"dxdx");
+    field->addVariable_withoutBounary("dd"+q+"dydy");
+    field->addVariable_withoutBounary("du"+q+"dx");
+    field->addVariable_withoutBounary("dv"+q+"dy");
+}
+
 void ConvectiveSolver::setDomain(double _x1, double _y1, double _x2, double _y2) {
     x1 = _x1;
     y1 = _y1;
     x2 = _x2;
     y2 = _y2;
     field = new DG_Field_2d(ne_x, ne_y, N, x1, y1, x2, y2);
-    field->addVariable_withBounary("T");
-    field->addVariable_withBounary("uT");
-    field->addVariable_withBounary("vT");
-    field->addVariable_withBounary("dTdx");
-    field->addVariable_withBounary("dTdy");
-    field->addVariable_withoutBounary("ddTdxdx");
-    field->addVariable_withoutBounary("ddTdydy");
-    field->addVariable_withoutBounary("duTdx");
-    field->addVariable_withoutBounary("dvTdy");
+    this->initVar("T");
     return ;
 }
 

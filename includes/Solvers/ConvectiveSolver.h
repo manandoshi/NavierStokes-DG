@@ -29,6 +29,7 @@ public:
      */
     /* ----------------------------------------------------------------------------*/
     ConvectiveSolver(int _ne_x, int _ne_y, int _N);
+    void initVar(string q);
     /* ----------------------------------------------------------------------------*/
     /**
      * @Synopsis  This is the function for setting the domain of the problem.
